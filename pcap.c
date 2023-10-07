@@ -9,6 +9,11 @@ void usage() {
 
 void packet_processor(const struct pcap_pkthdr* header, const u_char* packet) {
 
+    // Ethernet 프레임의 타입 필드를 검사하여 ARP 패킷인 경우 무시
+    if (packet[12] == 0x08 && packet[13] == 0x06) {
+        return;
+    }
+
     // 2 계층 정보수집을 위한 Ethernet 헤더 파싱
     u_char* eth_dest = packet;
     u_char* eth_source = packet + 6;
@@ -66,7 +71,7 @@ int main(int argc, char* argv[]) {
     }
 
     while (true) {
-        struct pcap_pacpro* header;
+        struct pcap_pkthdr* header;
         const u_char* packet;
         int res = pcap_next_ex(pcap, &header, &packet);
         if (res == 0) continue;
